@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alex Pandora — Digital Identity Terminal</title>
+  <style>
+    :root {
+      --bg: #06070b;
+      --bg-soft: rgba(255, 255, 255, 0.04);
+      --bg-card: rgba(255, 255, 255, 0.06);
+      --line: rgba(255, 255, 255, 0.1);
+      --text: #f5f7fb;
+      --muted: #9ca3b3;
+      --pink: #c02fa0;
+      --purple: #6f3ccf;
+      --blue: #1fa4c9;
+      --gold: #b89042;
+      --green: #72f7b8;
+      --shadow: 0 20px 80px rgba(0, 0, 0, 0.45);
+      --radius: 28px;
+      --radius-sm: 20px;
+      --max: 1200px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(111, 60, 207, 0.12), transparent 22%),
+        radial-gradient(circle at 80% 18%, rgba(31, 164, 201, 0.09), transparent 16%),
+        radial-gradient(circle at 50% 88%, rgba(192, 47, 160, 0.08), transparent 24%),
+        #040508;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 38px 38px;
+      opacity: 0.17;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow {
+      position: fixed;
+      border-radius: 999px;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.75;
+      animation: floatGlow 14s ease-in-out infinite;
+    }
+
+    .glow.one {
+      width: 360px;
+      height: 360px;
+      left: -80px;
+      top: 90px;
+      background: rgba(192, 47, 160, 0.08);
+    }
+
+    .glow.two {
+      width: 420px;
+      height: 420px;
+      right: -110px;
+      top: 240px;
+      background: rgba(31, 164, 201, 0.07);
+      animation-delay: -4s;
+    }
+
+    .glow.three {
+      width: 380px;
+      height: 380px;
+      left: 35%;
+      bottom: -100px;
+      background: rgba(184, 144, 66, 0.05);
+      animation-delay: -7s;
+    }
+
+    @keyframes floatGlow {
+      0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(35px, -25px, 0) scale(1.08); }
+    }
+
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.75);
+      animation: drift linear infinite;
+    }
+
+    @keyframes drift {
+      0% { transform: translateY(0px); opacity: 0.2; }
+      50% { opacity: 0.95; }
+      100% { transform: translateY(-40px); opacity: 0.2; }
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+    }
+
+    .container {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(3, 4, 7, 0.6);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 16px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(168,85,247,0.18), rgba(54,215,255,0.12));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 0 40px rgba(168,85,247,0.12);
+      font-size: 18px;
+    }
+
+    .brand-top {
+      font-size: 13px;
+      letter-spacing: 0.28em;
+      font-weight: 700;
+    }
+
+    .brand-bottom {
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .menu {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .menu a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      transition: 0.25s ease;
+    }
+
+    .menu a:hover {
+      color: #fff;
+    }
+
+    section {
+      padding: 28px 0;
+    }
+
+    .hero {
+      padding-top: 42px;
+      padding-bottom: 32px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 30px;
+      align-items: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(48px, 8vw, 92px);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .tagline {
+      display: inline-block;
+      margin-top: 18px;
+      position: relative;
+      padding: 12px 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      font-size: 12px;
+      color: #ffd6f5;
+      border: 1px solid rgba(255, 79, 216, 0.18);
+      background: rgba(0,0,0,0.28);
+      overflow: hidden;
+    }
+
+    .tagline::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: translateX(-100%);
+      animation: scan 4.4s linear infinite;
+    }
+
+    @keyframes scan {
+      to { transform: translateX(100%); }
+    }
+
+    .hero-text p {
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.9;
+      font-size: 16px;
+      margin: 20px 0 0;
+    }
+
+    .chips {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: #d7deea;
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(54,215,255,0.14), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(168,85,247,0.16), transparent 30%);
+      pointer-events: none;
+    }
+
+    .terminal-top {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      gap: 14px;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.32em;
+      color: var(--muted);
+    }
+
+    .status {
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #c9ffe8;
+      background: rgba(114, 247, 184, 0.1);
+      border: 1px solid rgba(114, 247, 184, 0.16);
+    }
+
+    .avatar-shell {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 190px;
+      height: 190px;
+      margin: 10px auto 22px;
+      border-radius: 34px;
+      background: linear-gradient(135deg, rgba(255,79,216,0.12), rgba(54,215,255,0.08), rgba(0,0,0,0.5));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 0 90px rgba(168,85,247,0.18);
+    }
+
+    .avatar-shell::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.34);
+    }
+
+    .avatar-image {
+      position: relative;
+      width: 132px;
+      height: 132px;
+      object-fit: cover;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+      display: block;
+    }
+
+    .metric-list {
+      position: relative;
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.22);
+    }
+
+    .metric span:first-child {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .metric span:last-child {
+      color: #fff;
+      text-align: right;
+      font-size: 14px;
+    }
+
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 28px;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      text-transform: uppercase;
+      letter-spacing: 0.32em;
+      font-size: 11px;
+      color: #f3cfff;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 48px);
+      letter-spacing: -0.03em;
+    }
+
+    .section-head p {
+      margin: 14px 0 0;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    .graph-card,
+    .manifest-card,
+    .pricing-card,
+    .contacts-card,
+    .services-card {
+      padding: 24px;
+    }
+
+    .graph-wrap {
+      position: relative;
+      height: 310px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background:
+        radial-gradient(circle at center, rgba(168,85,247,0.08), transparent 38%),
+        rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+
+    .graph-wrap::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    .graph-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .graph-note {
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(54,215,255,0.16);
+      background: rgba(54,215,255,0.09);
+      font-size: 12px;
+      color: #b5f4ff;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .link-line {
+      stroke: rgba(168, 139, 250, 0.42);
+      stroke-width: 0.45;
+      animation: pulseLine 4s ease-in-out infinite;
+    }
+
+    @keyframes pulseLine {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.8; }
+    }
+
+    .node {
+      animation: pulseNode 3s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    @keyframes pulseNode {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 24px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .service-item {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.2);
+      padding: 18px;
+      transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    }
+
+    .service-item:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,79,216,0.24);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .service-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 18px;
+    }
+
+    .price-pill {
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(54,215,255,0.09);
+      border: 1px solid rgba(54,215,255,0.16);
+      font-size: 12px;
+      color: #b5f4ff;
+      white-space: nowrap;
+    }
+
+    .service-item h3,
+    .mini-card h3,
+    .manifest-quote {
+      margin: 0;
+    }
+
+    .service-item h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .service-item p,
+    .mini-card p,
+    .contacts-item small,
+    .manifest-body p {
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 24px;
+    }
+
+    .mini-card {
+      border-radius: 28px;
+      padding: 24px;
+    }
+
+    .pricing-list,
+    .contacts-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .price-item,
+    .contacts-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      padding: 15px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .price-item strong,
+    .contacts-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .price-item .value {
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 18px;
+      white-space: nowrap;
+    }
+
+    .contacts-item a {
+      color: #dbe7ff;
+      text-decoration: none;
+      word-break: break-word;
+    }
+
+    .manifest-grid {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .manifest-quote-box {
+      border-radius: 24px;
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .manifest-quote {
+      font-size: 30px;
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+    }
+
+    .manifest-body p {
+      margin: 0 0 18px;
+      font-size: 16px;
+    }
+
+    .manifest-body p:last-child {
+      margin-bottom: 0;
+      color: #ffe9a9;
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(22px);
+      animation: fadeUp 0.9s ease forwards;
+    }
+
+    .delay-1 { animation-delay: 0.08s; }
+    .delay-2 { animation-delay: 0.16s; }
+    .delay-3 { animation-delay: 0.24s; }
+    .delay-4 { animation-delay: 0.32s; }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .hero-grid,
+      .grid-two,
+      .manifest-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .menu {
+        display: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .price-item,
+      .contacts-item,
+      .service-top,
+      .metric,
+      .graph-meta,
+      .terminal-top {
+        align-items: flex-start;
+      }
+
+      .price-item,
+      .contacts-item,
+      .metric {
+        flex-direction: column;
+      }
+
+      .container {
+        width: min(var(--max), calc(100% - 22px));
+      }
+
+      section {
+        padding: 22px 0;
+      }
+
+      .hero {
+        padding-top: 28px;
+      }
+
+      .hero-card,
+      .graph-card,
+      .manifest-card,
+      .pricing-card,
+      .contacts-card,
+      .services-card,
+      .mini-card {
+        padding: 18px;
+      }
+
+      .avatar-shell {
+        width: 168px;
+        height: 168px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow one"></div>
+  <div class="glow two"></div>
+  <div class="glow three"></div>
+  <div class="particles" id="particles"></div>
+
+  <div class="wrap">
+    <header class="nav">
+      <div class="container nav-inner">
+        <div class="brand">
+          <div class="brand-icon">⌘</div>
+          <div>
+            <div class="brand-top">ALEX PANDORA</div>
+            <div class="brand-bottom">Digital Identity Terminal</div>
+          </div>
+        </div>
+        <nav class="menu">
+          <a href="#about">About</a>
+          <a href="#graph">Graph</a>
+          <a href="#services">Services</a>
+          <a href="#manifest">Manifest</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="about">
+        <div class="container hero-grid">
+          <div class="hero-text fade-up">
+            <h1>Alex Pandora</h1>
+            <div class="tagline">“everyone are depressed but cute”</div>
+
+            <p class="delay-1 fade-up">
+              I am a cybersecurity specialist with practical experience in digital footprint analysis and open-source intelligence. From an early age, I developed a deep understanding of online environments and how digital ecosystems operate, which shaped my analytical thinking and awareness of modern cyber threats.
+            </p>
+
+            <p class="delay-2 fade-up">
+              Over time, I obtained formal education in cybersecurity and transitioned fully into legal and ethical work focused on protecting individuals and their data. My goal is to identify threats, analyze digital traces, and enhance the security of my clients.
+            </p>
+
+            <div class="chips delay-3 fade-up">
+              <div class="chip">OSINT</div>
+              <div class="chip">GEOINT</div>
+              <div class="chip">HUMINT</div>
+              <div class="chip">Privacy</div>
+              <div class="chip">Threat Mapping</div>
+            </div>
+          </div>
+
+          <div class="card hero-card fade-up delay-2">
+            <div class="terminal-top">
+              <div>
+                <div class="eyebrow">Identity Snapshot</div>
+              </div>
+              <div class="status">online</div>
+            </div>
+
+            <div class="avatar-shell">
+              <img class="avatar-image" src="avatar.jpg" alt="Alex Pandora avatar" />
+            </div>
+
+            <div class="metric-list">
+              <div class="metric">
+                <span>Focus</span>
+                <span>Open-source investigation aesthetics</span>
+              </div>
+              <div class="metric">
+                <span>Mode</span>
+                <span>Legal &amp; ethical security work</span>
+              </div>
+              <div class="metric">
+                <span>Style</span>
+                <span>Dark / underground terminal</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="graph">
+        <div class="container">
+          <div class="section-head fade-up">
+            <div class="section-tag">✦ Visual Layer</div>
+            <h2>Aesthetic Network Mapping</h2>
+            <p>
+              A subtle graph section inspired by investigation boards: interactive, technical, and atmospheric, without taking focus away from the portfolio itself.
+            </p>
+          </div>
+
+          <div class="card graph-card fade-up delay-1">
+            <div class="graph-meta">
+              <div>
+                <div class="eyebrow">Signal Graph</div>
+                <div style="margin-top:8px;color:var(--muted);font-size:14px;">Low-emphasis visual inspired by digital investigation mapping.</div>
+              </div>
+              <div class="graph-note">interactive aesthetic layer</div>
+            </div>
+
+            <div class="graph-wrap">
+              <svg viewBox="0 0 100 100" aria-label="network graph">
+                <line class="link-line" x1="50" y1="50" x2="22" y2="25"></line>
+                <line class="link-line" x1="50" y1="50" x2="78" y2="23" style="animation-delay:.3s"></line>
+                <line class="link-line" x1="50" y1="50" x2="15" y2="70" style="animation-delay:.7s"></line>
+                <line class="link-line" x1="50" y1="50" x2="82" y2="67" style="animation-delay:1s"></line>
+                <line class="link-line" x1="50" y1="50" x2="36" y2="80" style="animation-delay:1.2s"></line>
+                <line class="link-line" x1="50" y1="50" x2="63" y2="81" style="animation-delay:1.6s"></line>
+                <line class="link-line" x1="50" y1="50" x2="50" y2="15" style="animation-delay:1.9s"></line>
+                <line class="link-line" x1="22" y1="25" x2="50" y2="15" style="animation-delay:2.1s"></line>
+                <line class="link-line" x1="78" y1="23" x2="50" y2="15" style="animation-delay:2.4s"></line>
+                <line class="link-line" x1="15" y1="70" x2="36" y2="80" style="animation-delay:2.7s"></line>
+                <line class="link-line" x1="82" y1="67" x2="63" y2="81" style="animation-delay:3s"></line>
+
+                <circle class="node" cx="50" cy="50" r="11" fill="rgba(255,79,216,0.12)"></circle>
+                <circle class="node" cx="50" cy="50" r="7" fill="rgba(245,193,93,0.95)"></circle>
+
+                <circle class="node" cx="22" cy="25" r="4" fill="rgba(54,215,255,0.95)" style="animation-delay:.2s"></circle>
+                <circle class="node" cx="78" cy="23" r="4" fill="rgba(54,215,255,0.95)" style="animation-delay:.4s"></circle>
+                <circle class="node" cx="15" cy="70" r="4" fill="rgba(54,215,255,0.95)" style="animation-delay:.7s"></circle>
+                <circle class="node" cx="82" cy="67" r="5" fill="rgba(54,215,255,0.95)" style="animation-delay:.9s"></circle>
+                <circle class="node" cx="36" cy="80" r="3" fill="rgba(54,215,255,0.95)" style="animation-delay:1.1s"></circle>
+                <circle class="node" cx="63" cy="81" r="3" fill="rgba(54,215,255,0.95)" style="animation-delay:1.3s"></circle>
+                <circle class="node" cx="50" cy="15" r="3" fill="rgba(54,215,255,0.95)" style="animation-delay:1.6s"></circle>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="services">
+        <div class="container">
+          <div class="section-head fade-up">
+            <div class="section-tag">✦ Services &amp; Pricing</div>
+            <h2>Affordable entry-level cybersecurity positioning</h2>
+            <p>
+              Structured around lawful OSINT-style research, privacy awareness, and digital trace analysis. Designed to look sharp, underground, and technically confident.
+            </p>
+          </div>
+
+          <div class="grid-two">
+            <div class="card services-card fade-up delay-1">
+              <div class="terminal-top">
+                <div>
+                  <h3 style="font-size:28px;margin:0;">Services</h3>
+                  <p style="margin:10px 0 0;color:var(--muted);line-height:1.8;max-width:640px;">
+                    Open-source intelligence-inspired offerings presented in a legal, privacy-conscious format.
+                  </p>
+                </div>
+                <div class="price-pill">OSINT / GEOINT / HUMINT</div>
+              </div>
+
+              <div class="services-grid">
+                <a class="service-item" href="#contacts">
+                  <div class="service-top">
+                    <div class="icon">⌕</div>
+                    <div class="price-pill">€10–50</div>
+                  </div>
+                  <h3>OSINT Search &amp; Analysis</h3>
+                  <p>Open-source research, digital footprint mapping, and public data analysis for legal and ethical use cases.</p>
+                </a>
+
+                <a class="service-item" href="#contacts">
+                  <div class="service-top">
+                    <div class="icon">◉</div>
+                    <div class="price-pill">€10–25</div>
+                  </div>
+                  <h3>Nickname Exposure Review</h3>
+                  <p>Assessment of how a public nickname may connect across platforms, communities, and searchable traces.</p>
+                </a>
+
+                <a class="service-item" href="#contacts">
+                  <div class="service-top">
+                    <div class="icon">⌖</div>
+                    <div class="price-pill">€15–35</div>
+                  </div>
+                  <h3>GEOINT Clue Analysis</h3>
+                  <p>Careful review of visual context, map hints, and open geographic indicators in publicly shared material.</p>
+                </a>
+
+                <a class="service-item" href="#contacts">
+                  <div class="service-top">
+                    <div class="icon">◌</div>
+                    <div class="price-pill">€10–20</div>
+                  </div>
+                  <h3>HUMINT Risk Awareness</h3>
+                  <p>Consulting on social engineering exposure, personal data habits, and basic information control.</p>
+                </a>
+
+                <a class="service-item" href="#contacts">
+                  <div class="service-top">
+                    <div class="icon">⛨</div>
+                    <div class="price-pill">€5–15</div>
+                  </div>
+                  <h3>Privacy Hardening</h3>
+                  <p>Practical recommendations to reduce unnecessary exposure, tighten settings, and improve digital hygiene.</p>
+                </a>
+
+                <a class="service-item" href="#contacts">
+                  <div class="service-top">
+                    <div class="icon">◎</div>
+                    <div class="price-pill">€15–45</div>
+                  </div>
+                  <h3>Threat Surface Snapshot</h3>
+                  <p>A compact overview of visible accounts, open traces, and possible risk points around a person or project.</p>
+                </a>
+              </div>
+            </div>
+
+            <div class="side-stack">
+              <div class="card pricing-card mini-card fade-up delay-2">
+                <div class="eyebrow">Retainers</div>
+                <h3 style="font-size:28px; margin-top:10px;">Plans</h3>
+                <div class="pricing-list">
+                  <div class="price-item">
+                    <div>
+                      <strong>One-Time Defense</strong>
+                      <small>A quick security-oriented review for one focused issue or question.</small>
+                    </div>
+                    <div class="value">€10</div>
+                  </div>
+                  <div class="price-item">
+                    <div>
+                      <strong>Monthly</strong>
+                      <small>Light ongoing support for digital hygiene, exposure checks, and practical advice.</small>
+                    </div>
+                    <div class="value">€35</div>
+                  </div>
+                  <div class="price-item">
+                    <div>
+                      <strong>5 Months</strong>
+                      <small>A longer-term setup for steadily improving privacy, visibility, and resilience.</small>
+                    </div>
+                    <div class="value">€55</div>
+                  </div>
+                  <div class="price-item">
+                    <div>
+                      <strong>Lifetime</strong>
+                      <small>A symbolic premium tier for long-term advisory access and personalized guidance.</small>
+                    </div>
+                    <div class="value">€120</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card contacts-card mini-card fade-up delay-3" id="contacts">
+                <div class="eyebrow">Direct Lines</div>
+                <h3 style="font-size:28px; margin-top:10px;">Contacts</h3>
+                <div class="contacts-list">
+                  <div class="contacts-item">
+                    <div>
+                      <strong>Telegram</strong>
+                      <small><a href="https://t.me/inteligecebringfinance" target="_blank" rel="noreferrer">@inteligecebringfinance</a></small>
+                    </div>
+                    <div>↗</div>
+                  </div>
+                  <div class="contacts-item">
+                    <div>
+                      <strong>Discord</strong>
+                      <small><a href="https://discord.com/users/1464106216300216555" target="_blank" rel="noreferrer">fqdcyoaumwpomic_36383</a></small>
+                    </div>
+                    <div>↗</div>
+                  </div>
+                  <div class="contacts-item">
+                    <div>
+                      <strong>Email</strong>
+                      <small><a href="mailto:intelegenceprince@gmail.com">intelegenceprince@gmail.com</a></small>
+                    </div>
+                    <div>↗</div>
+                  </div>
+                  <div class="contacts-item">
+                    <div>
+                      <strong>GitHub</strong>
+                      <small><a href="https://github.com/AlexPandorian" target="_blank" rel="noreferrer">github.com/AlexPandorian</a></small>
+                    </div>
+                    <div>↗</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="manifest">
+        <div class="container">
+          <div class="section-head fade-up">
+            <div class="section-tag">✦ Manifest</div>
+            <h2>Control the trace, or the trace controls you</h2>
+            <p>
+              A short cyberpunk-styled philosophy block about footprints, anonymity, and information pressure.
+            </p>
+          </div>
+
+          <div class="card manifest-card fade-up delay-1">
+            <div class="manifest-grid">
+              <div class="manifest-quote-box">
+                <div class="eyebrow">Core Signal</div>
+                <h3 class="manifest-quote" style="margin-top:14px;">
+                  Anonymity is often just a delay between exposure and discovery.
+                </h3>
+              </div>
+
+              <div class="manifest-body">
+                <p>
+                  Every account leaves a shape. Every post, handle, timestamp, and fragment of context becomes part of a larger pattern. Most people do not disappear online — they only scatter.
+                </p>
+                <p>
+                  The illusion of anonymity survives only while nobody is looking carefully enough. Information drifts, connects, reflects, and waits. The modern network remembers more than people expect.
+                </p>
+                <p>
+                  Control is not silence. Control is knowing what exists, what can be linked, what can be inferred, and what should never have been visible in the first place.
+                </p>
+                <p>
+                  In a world built on signals, intelligence begins where noise becomes structure.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const particles = document.getElementById('particles');
+
+    for (let i = 0; i < 26; i++) {
+      const dot = document.createElement('span');
+      dot.className = 'particle';
+      dot.style.left = `${Math.random() * 100}%`;
+      dot.style.top = `${Math.random() * 100}%`;
+
+      const size = 2 + Math.random() * 3;
+      dot.style.width = `${size}px`;
+      dot.style.height = `${size}px`;
+      dot.style.animationDuration = `${6 + Math.random() * 8}s`;
+      dot.style.animationDelay = `${Math.random() * 4}s`;
+
+      particles.appendChild(dot);
+    }
+  </script>
+</body>
+</html>
